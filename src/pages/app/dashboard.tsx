@@ -1,5 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Helmet } from "react-helmet-async";
 
 export function Dashboard() {
-  return <Button>Dashboard</Button>;
+  return (
+    <>
+      <Helmet title="Dashboard" />
+      <h1>Dashboard</h1>
+    </>
+  );
 }

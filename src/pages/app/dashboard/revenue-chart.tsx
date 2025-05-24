@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { subDays } from "date-fns";
 import { Loader2, XCircle } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
 import {
   CartesianGrid,
@@ -86,6 +86,15 @@ export function RevenueChart() {
     });
   }
 
+  const chartData = useMemo(() => {
+    return dailyReceiptInPeriod?.map((chartItem) => {
+      return {
+        date: chartItem.date,
+        receipt: chartItem.receipt / 100,
+      };
+    });
+  }, [dailyReceiptInPeriod]);
+
   return (
     <Card className="col-span-6">
       <CardHeader className="flex flex-row items-center justify-between pb-8">
@@ -104,11 +113,11 @@ export function RevenueChart() {
         </div>
       </CardHeader>
       <CardContent>
-        {dailyReceiptInPeriod ? (
+        {chartData ? (
           <>
-            {dailyReceiptInPeriod.length > 0 ? (
+            {chartData.length > 0 ? (
               <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={dailyReceiptInPeriod} style={{ fontSize: 12 }}>
+                <LineChart data={chartData} style={{ fontSize: 12 }}>
                   <XAxis
                     dataKey="date"
                     stroke="#888888"

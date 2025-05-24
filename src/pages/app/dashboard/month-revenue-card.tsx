@@ -1,46 +1,56 @@
 import { useQuery } from "@tanstack/react-query";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Loader2 } from "lucide-react";
 
 import { getMonthRevenue } from "@/api/get-month-revenue";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { CardSkeleton } from "./card-skeleton";
+
 export function MonthRevenueCard() {
-  const { data: monthRevenue } = useQuery({
-    queryKey: ["month-revenue"],
+  const { data: monthRevenue, isFetching: isLoadingMonthRevenue } = useQuery({
+    queryKey: ["metrics", "month-revenue"],
     queryFn: getMonthRevenue,
   });
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-semibold">
           Receita total (mês)
         </CardTitle>
-        <DollarSign className="h-4 w-4 text-muted-foreground" />
+        {isLoadingMonthRevenue ? (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        ) : (
+          <DollarSign className="h-4 w-4 text-muted-foreground" />
+        )}
       </CardHeader>
       <CardContent className="space-y-1">
-        {monthRevenue && (
+        {monthRevenue ? (
           <>
-            <span className="text-2xl font-bold tracking-tight">
-              {(monthRevenue.receipt / 100).toLocaleString("pt-BR", {
-                style: "currency",
+            <span className="text-2xl font-bold">
+              {monthRevenue.receipt.toLocaleString("pt-BR", {
                 currency: "BRL",
+                style: "currency",
               })}
             </span>
             <p className="text-xs text-muted-foreground">
               <span
                 className={
                   monthRevenue.diffFromLastMonth > 0
-                    ? "text-emerald-500 dark:text-emerald-400"
-                    : "text-rose-500 dark:text-rose-400"
+                    ? "text-emerald-500"
+                    : "text-red-500"
                 }
               >
-                {monthRevenue.diffFromLastMonth > 0 ? "+" : ""}
-                {monthRevenue.diffFromLastMonth}%
+                {monthRevenue.diffFromLastMonth > 0
+                  ? `+${monthRevenue.diffFromLastMonth}`
+                  : monthRevenue.diffFromLastMonth}
+                %
               </span>{" "}
               em relação ao mês passado
             </p>
           </>
+        ) : (
+          <CardSkeleton />
         )}
       </CardContent>
     </Card>

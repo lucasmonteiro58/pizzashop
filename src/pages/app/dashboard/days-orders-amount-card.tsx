@@ -1,40 +1,52 @@
 import { useQuery } from "@tanstack/react-query";
-import { Utensils } from "lucide-react";
+import { Loader2, Utensils } from "lucide-react";
 
-import { getDaysOrdersAmount } from "@/api/get-days-orders-amount";
+import { getDayOrdersAmount } from "@/api/get-day-orders-amount";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { CardSkeleton } from "./card-skeleton";
+
 export function DayOrdersAmountCard() {
-  const { data: dayOrdersAmount } = useQuery({
-    queryKey: ["day-orders-amount"],
-    queryFn: getDaysOrdersAmount,
-  });
+  const { data: dayOrdersAmount, isFetching: isLoadingDayOrdersAmount } =
+    useQuery({
+      queryKey: ["metrics", "day-orders-amount"],
+      queryFn: getDayOrdersAmount,
+    });
+
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between space-y-0 pb-2">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-semibold">Pedidos (dia)</CardTitle>
-        <Utensils className="h-4 w-4 text-muted-foreground" />
+        {isLoadingDayOrdersAmount ? (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        ) : (
+          <Utensils className="h-4 w-4 text-muted-foreground" />
+        )}
       </CardHeader>
       <CardContent className="space-y-1">
-        {dayOrdersAmount && (
+        {dayOrdersAmount ? (
           <>
-            <span className="text-2xl font-bold tracking-tight">
-              {dayOrdersAmount?.amount.toLocaleString("pt-BR")}
+            <span className="text-2xl font-bold">
+              {dayOrdersAmount.amount.toLocaleString("pt-BR")}
             </span>
             <p className="text-xs text-muted-foreground">
               <span
                 className={
-                  dayOrdersAmount?.diffFromYesterday >= 0
-                    ? "text-emerald-500 dark:text-emerald-400"
-                    : "text-rose-500 dark:text-rose-400"
+                  dayOrdersAmount.diffFromYesterday > 0
+                    ? "text-emerald-500"
+                    : "text-red-500"
                 }
               >
-                {dayOrdersAmount?.diffFromYesterday > 0 ? "+" : ""}
-                {dayOrdersAmount?.diffFromYesterday}%
+                {dayOrdersAmount.diffFromYesterday > 0
+                  ? `+${dayOrdersAmount.diffFromYesterday}`
+                  : dayOrdersAmount.diffFromYesterday}
+                %
               </span>{" "}
               em relação a ontem
             </p>
           </>
+        ) : (
+          <CardSkeleton />
         )}
       </CardContent>
     </Card>

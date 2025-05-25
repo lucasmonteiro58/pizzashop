@@ -29,9 +29,14 @@
       "@/*": [
         "./src/*"
       ]
-    }
+    },
+    "types": [
+      "vitest/globals",
+      "@testing-library/jest-dom/vitest"
+    ],
   },
   "include": [
-    "src"
+    "src",
+    "test"
   ]
 }
